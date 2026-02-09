@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radha Naam Jap Counter</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+        :root {
+            --background-color: radial-gradient(ellipse at top right, #1e0a32 0%, #0c0211 50%, #1e0a32 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --text-color: #e0e0e0;
+            --highlight-color: #90caf9;
+            --button-bg: rgba(255, 255, 255, 0.1);
+            --button-hover-bg: rgba(255, 255, 255, 0.2);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: var(--glass-border);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0px;
+            color: var(--highlight-color);
+            text-shadow: 0 0 10px var(--highlight-color);
+        }
+
+        .counter-display {
+            font-size: 5em;
+            font-weight: 700;
+            color: var(--highlight-color);
+            text-shadow: 0 0 20px var(--highlight-color), 0 0 30px var(--highlight-color);
+            margin: 20px 0;
+        }
+        
+        .reset-button-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .controls button {
+            background: var(--button-bg);
+            border: var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-color);
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .controls button:hover {
+            background: var(--button-hover-bg);
+            transform: translateY(-2px);
+        }
+        
+        .reset-button-container button {
+             background: rgba(255, 0, 0, 0.1);
+             border: 1px solid rgba(255, 0, 0, 0.2);
+             color: #ff8888;
+             margin-top: 10px;
+        }
+
+        .reset-button-container button:hover {
+             background: rgba(255, 0, 0, 0.2);
+             color: #ffcccc;
+        }
+
+        .attribution {
+            font-size: 0.8em;
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .attribution a {
+            color: var(--highlight-color);
+            text-decoration: none;
+        }
+        .attribution a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Aikon SDK Inclusion */
+        .aikon-sdk {
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Radha Naam Jap Counter</h1>
+        <div class="counter-display" id="counterDisplay">0</div>
+        <div class="controls">
+            <button id="incrementButton">Jap Karein 🙏</button>
+            <button id="decrementButton">Piche Hatao 🔙</button>
+        </div>
+        <div class="reset-button-container">
+            <button id="resetButton">Reset Karein 🔄</button>
+        </div>
+        <div class="attribution">
+            Built with ❤️ by <a href="https://www.aikonai.io/" target="_blank">Aikon Studios</a> (Aditya Jain)
+        </div>
+    </div>
+
+    <script>
+        // Aikon SDK - DO NOT MODIFY
+        class AikonEngine {
+            constructor(config) {
+                this.apiKey = config.apiKey;
+                this.baseUrl = 'https://www.aikonai.io/api/v1';
+            }
+
+            async chat(params) {
+                try {
+                    const response = await fetch(`${this.baseUrl}/chat`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${this.apiKey}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: params.message,
+                            userInstruction: params.userInstruction || "You are a helpful AI."
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+                    }
+
+                    const data = await response.json();
+                    return data; // returns { text: "..." }
+                } catch (e) {
+                    console.error("Aikon Engine Error:", e);
+                    throw e;
+                }
+            }
+        }
+
+        // --- Aikon SDK Integration ---
+        const API_KEY = "ak_rfew23bo6b1wnz9j2d3bz"; // Your Aikon API Key
+        const ai = new AikonEngine({ apiKey: API_KEY });
+
+        // --- App Logic ---
+        const counterDisplay = document.getElementById('counterDisplay');
+        const incrementButton = document.getElementById('incrementButton');
+        const decrementButton = document.getElementById('decrementButton');
+        const resetButton = document.getElementById('resetButton');
+
+        let count = 0;
+
+        function updateCounterDisplay() {
+            counterDisplay.textContent = count;
+        }
+
+        incrementButton.addEventListener('click', () => {
+            count++;
+            updateCounterDisplay();
+            // Optional: Add a subtle AI interaction here if needed
+            // ai.chat({ message: `User incremented the counter to ${count}` });
+        });
+
+        decrementButton.addEventListener('click', () => {
+            if (count > 0) {
+                count--;
+                updateCounterDisplay();
+            } else {
+                // Optionally provide some feedback if count is already 0
+                // ai.chat({ message: "User tried to decrement counter below zero." });
+            }
+        });
+
+        resetButton.addEventListener('click', () => {
+            count = 0;
+            updateCounterDisplay();
+            // Optionally inform AI about reset
+            // ai.chat({ message: "User reset the counter." });
+        });
+
+        // Initial display
+        updateCounterDisplay();
+    </script>
+</body>
+</html>
